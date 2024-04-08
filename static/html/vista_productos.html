@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleccionar Productos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    .product {
+      cursor: pointer;
+    }
+    .product:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Seleccionar Productos</h2>
+    <ul id="productList">
+      <!-- Aquí se mostrarán los productos -->
+    </ul>
+  </div>
+
+    <script>
+// URL del endpoint
+const url = 'http://127.0.0.1:8000/bar/api/v1/productos';
+
+// Función para obtener los productos
+async function getProducts() {
+  const response = await fetch(url);
+  const products = await response.json();
+  return products;
+}
+
+// Función para agregar los productos a la lista
+async function addProductsToList() {
+  const products = await getProducts();
+  const list = document.getElementById('productList');
+
+  products.forEach(product => {
+    const listItem = document.createElement('li');
+    const productInfo = document.createElement('span');
+    productInfo.textContent = `${product.name} - ${product.price}€`; // Concatena nombre de la mesa con su estado
+    listItem.appendChild(productInfo);
+
+
+    list.appendChild(listItem);
+  });
+}
+
+// Llama a la función cuando se carga la página
+window.onload = addProductsToList;
+</script>
+</body>
+</html>

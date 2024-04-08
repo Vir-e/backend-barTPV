@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear Albarán de Venta</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    .container {
+      width: 600px;
+      margin: 50px auto;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: calc(100% - 12px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+    .product-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr 1fr;
+      gap: 10px;
+    }
+    .total {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    input[type="submit"] {
+      width: 100%;
+      background-color: #333;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    input[type="submit"]:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Crear Albarán de Venta</h2>
+    <form action="#" method="post">
+      <label for="id">ID:</label>
+      <input type="text" name="id" id="id" required>
+
+      <label for="cliente">Cliente:</label>
+      <select name="cliente" id="cliente" required>
+        <option value="">Seleccionar Cliente</option>
+        <!-- Opciones de cliente cargadas dinámicamente desde la base de datos -->
+        <option value="cliente1">Cliente 1</option>
+        <option value="cliente2">Cliente 2</option>
+        <option value="cliente3">Cliente 3</option>
+      </select>
+
+      <label for="fecha">Fecha:</label>
+      <input type="date" name="fecha" id="fecha" required>
+      <br><br>
+      <div id="products-container">
+        <div class="product-row">
+          <label for="producto1">Producto:</label>
+          <select name="producto1" class="producto" required>
+            <option value="">Seleccionar Producto</option>
+            <!-- Opciones de producto cargadas dinámicamente desde la base de datos -->
+            <option value="producto1">Producto 1</option>
+            <option value="producto2">Producto 2</option>
+            <option value="producto3">Producto 3</option>
+          </select>
+          <label for="cantidad1">Cantidad:</label>
+          <input type="number" name="cantidad1" min="1" required>
+          <label for="precio1">Precio Unitario:</label>
+          <input type="number" name="precio1" min="0" step="0.01" required>
+        </div>
+      </div>
+
+      <button type="button" onclick="addProductRow()">Agregar Producto</button>
+
+      <div class="total" id="total">Total: $0.00</div>
+
+      <input type="submit" value="Guardar Albarán">
+    </form>
+  </div>
+
+  <script>
+    function addProductRow() {
+      const productsContainer = document.getElementById('products-container');
+      const newRow = document.createElement('div');
+      newRow.classList.add('product-row');
+      newRow.innerHTML = `
+        <label for="producto">Producto:</label>
+        <select name="producto" class="producto" required>
+          <option value="">Seleccionar Producto</option>
+          <!-- Opciones de producto cargadas dinámicamente desde la base de datos -->
+          <option value="producto1">Producto 1</option>
+          <option value="producto2">Producto 2</option>
+          <option value="producto3">Producto 3</option>
+        </select>
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" name="cantidad" min="1" required>
+        <label for="precio">Precio Unitario:</label>
+        <input type="number" name="precio" min="0" step="0.01" required>
+      `;
+      productsContainer.appendChild(newRow);
+    }
+
+    document.addEventListener('input', function(event) {
+      if (event.target.classList.contains('producto') || event.target.name === 'cantidad' || event.target.name === 'precio') {
+        updateTotal();
+      }
+    });
+
+    function updateTotal() {
+      const rows = document.querySelectorAll('.product-row');
+      let total = 0;
+      rows.forEach(row => {
+        const cantidad = parseFloat(row.querySelector('input[name="cantidad"]').value);
+        const precio = parseFloat(row.querySelector('input[name="precio"]').value);
+        total += cantidad * precio;
+      });
+      document.getElementById('total').textContent = `Total: $${total.toFixed(2)}`;
+    }
+  </script>
+</body>
+</html>
