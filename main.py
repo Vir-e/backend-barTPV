@@ -3,20 +3,37 @@ from fastapi.responses import HTMLResponse, FileResponse
 from typing import Annotated
 from globals import listado_pedidos_actuales
 from fastapi.params import Body
-from models.invoiceDAO import Invoice
+#from models.invoiceDAO import Invoice
 from models.tableDAO import Table
 from models.productDAO import Product
 from models.table_reservationDAO import TableReservation
-from models.orderDTO import Order, OrderDTO, AddOrderDTO
+#from models.orderDTO import Order, OrderDTO, AddOrderDTO
 from fastapi.staticfiles import StaticFiles
 #from business_services import bar_services
 from business_services.orders_services import iniciar_pedido, agregar_al_pedido, eliminar_del_pedido, generar_factura
 from repositories import product_connector, tablereservation_connector, table_connector, invoice_connector
+# para evitar problema cors por origen
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static_BORRAR", StaticFiles(directory="static_BORRAR"), name="static_BORRAR")
+
+# Origenes permitidos para hacer peticiones
+origins = [
+    "http://localhost:63342",
+    "http://localhost:8080",
+]
+# config de las cors
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 @app.get("/")
@@ -30,7 +47,7 @@ async def root():
 async def home():
     html_content = ""
     # Abre el archivo HTML en modo lectura
-    with open('static/html/gestion_index.html', 'r', encoding='utf-8') as archivo:
+    with open('static_BORRAR/html/gestion_index.html', 'r', encoding='utf-8') as archivo:
         # Lee el contenido del archivo
         html_content = archivo.read()
 
@@ -43,7 +60,7 @@ async def home():
 async def table_form():
     html_content = ""
     # Abre el archivo HTML en modo lectura
-    with open('static/html/formulario_mesas.html', 'r', encoding='utf-8') as archivo:
+    with open('static_BORRAR/html/formulario_mesas.html', 'r', encoding='utf-8') as archivo:
         # Lee el contenido del archivo
         html_content = archivo.read()
 
@@ -56,7 +73,7 @@ async def table_form():
 async def product_form():
     html_content = ""
     # Abre el archivo HTML en modo lectura
-    with open('static/html/formulario_productos.html', 'r', encoding='utf-8') as archivo:
+    with open('static_BORRAR/html/formulario_productos.html', 'r', encoding='utf-8') as archivo:
         # Lee el contenido del archivo
         html_content = archivo.read()
 
@@ -67,13 +84,13 @@ async def product_form():
 
 @app.get("/tables_view", response_class=HTMLResponse)
 async def tables_view():
-    html_address = "static/html/vista_mesas.html"
+    html_address = "static_BORRAR/html/vista_mesas.html"
     return FileResponse(html_address, status_code=200)
 
 
 @app.get("/products_view", response_class=HTMLResponse)
 async def products_view():
-    html_address = "static/html/prueba02.html"
+    html_address = "static_BORRAR/html/prueba02.html"
     return FileResponse(html_address, status_code=200)
 
 
@@ -81,7 +98,7 @@ async def products_view():
 async def delivery_form():
     html_content = ""
     # Abre el archivo HTML en modo lectura
-    with open('static/html/prueba.html', 'r', encoding='utf-8') as archivo:
+    with open('static_BORRAR/html/prueba.html', 'r', encoding='utf-8') as archivo:
         # Lee el contenido del archivo
         html_content = archivo.read()
 

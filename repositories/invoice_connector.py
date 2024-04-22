@@ -53,7 +53,9 @@ def buscar_factura(codigo_fac: int):
         cursor = conn.cursor()
 
         print("Registros leidos:")
-        cursor.execute(f"""SELECT * FROM public.factura WHERE codigo={codigo_fac}""")
+        query = f"""SELECT * FROM public.factura WHERE codigo=%s"""
+        params = (codigo_fac, )
+        cursor.execute(query, params)
         facturas = cursor.fetchall()
 
         for factura in facturas:
@@ -124,7 +126,10 @@ def insertar_factura(factura: Invoice):
         print("Conexión abierta")
         print(factura)
         cursor = conn.cursor()
-        cursor.execute(f"""INSERT INTO public.factura (codigo, mesa_cod, concepto, importe_bruto, iva_aplicado, importe_neto, fecha) VALUES({factura.code}, {factura.code_table}, '{(json.dumps(factura.concept))}', {factura.total_gross_amount}, {factura.iva_applied}, {factura.total_invoice}, '{factura.date}');""")
+        query = f"""INSERT INTO public.factura (codigo, mesa_cod, concepto, importe_bruto, iva_aplicado, importe_neto, fecha) VALUES(%s, %s, %s, %s, %s, %s, %s);"""
+        params = (factura.code, factura.code_table, (json.dumps(factura.concept)), factura.total_gross_amount, factura.iva_applied, factura.total_invoice, factura.date)
+
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha insertado exitosamente")
         mensaje = "Registro insertado con éxito"
@@ -147,7 +152,9 @@ def eliminar_factura(factura: Invoice):
         print("Conexión abierta")
         print(factura)
         cursor = conn.cursor()
-        cursor.execute(f"""DELETE FROM public.factura WHERE codigo = {factura.code};""")
+        query = f"""DELETE FROM public.factura WHERE codigo = %s;"""
+        params = (factura.code, )
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha eliminado exitosamente")
         mensaje = "Registro eliminado con éxito"

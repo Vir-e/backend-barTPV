@@ -83,7 +83,9 @@ def buscar_un_producto(codigo_producto):
         cursor = conn.cursor()
 
         #print("Registros leidos:")
-        cursor.execute(f"""SELECT * FROM public.producto WHERE codigo={codigo_producto}""")
+        query = f"""SELECT * FROM public.producto WHERE codigo=%s"""
+        params = (codigo_producto, )
+        cursor.execute(query, params)
         productos = cursor.fetchall()
 
         for producto in productos:
@@ -116,7 +118,9 @@ def insertar_producto(producto: Product):
         print("Conexión abierta")
         print(producto)
         cursor = conn.cursor()
-        cursor.execute(f"""INSERT INTO public.producto (nombre, precio, iva, stock) VALUES('{producto.name}', {producto.price}, {producto.iva}, {producto.stock});""")
+        query = f"""INSERT INTO public.producto (nombre, precio, iva, stock) VALUES(%s, %s, %s, %s);"""
+        params = (producto.name, producto.price, producto.iva, producto.stock)
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha insertado exitosamente")
         mensaje = "Registro insertado con éxito"
@@ -139,7 +143,9 @@ def modificar_producto(producto: Product):
         print("Conexión abierta")
         print(producto)
         cursor = conn.cursor()
-        cursor.execute(f"""UPDATE public.producto SET nombre = '{producto.name}', precio = {producto.price}, iva = {producto.iva}, stock = {producto.stock} WHERE codigo = {producto.code};""")
+        query = f"""UPDATE public.producto SET nombre = %s, precio = %s, iva = %s, stock = %s WHERE codigo = %s;"""
+        params = (producto.name, producto.price, producto.iva, producto.stock, producto.code)
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha modificado exitosamente")
         mensaje = "Registro modificado con éxito"
@@ -162,7 +168,9 @@ def eliminar_producto(producto: Product):
         print("Conexión abierta")
         print(producto)
         cursor = conn.cursor()
-        cursor.execute(f"""DELETE FROM public.producto WHERE codigo = {producto.code};""")
+        query = f"""DELETE FROM public.producto WHERE codigo = %s;"""
+        params = (producto.code, )
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha eliminado exitosamente")
         mensaje = "Registro eliminado con éxito"

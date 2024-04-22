@@ -11,7 +11,9 @@ def insertar_reserva(reserva: TableReservation):
         print("Conexión abierta")
         print(reserva)
         cursor = conn.cursor()
-        cursor.execute(f"""INSERT INTO public.reserva (mesa_codigo, fecha, num_personas, nota) VALUES({reserva.table_code}, '{reserva.date}', '{reserva.num_people}', '{reserva.note}');""")
+        query = f"""INSERT INTO public.reserva (mesa_codigo, fecha, num_personas, nota) VALUES(%s, %s, %s, %s);"""
+        params = (reserva.table_code, reserva.date, reserva.num_people, reserva.note)
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha insertado exitosamente")
         mensaje = "Registro insertado con éxito"
@@ -72,7 +74,9 @@ def buscar_reserva(codigo_reserva: int):
         cursor = conn.cursor()
 
         print("Registros leidos:")
-        cursor.execute(f"""SELECT * FROM public.reserva WHERE codigo={codigo_reserva}""")
+        query = f"""SELECT * FROM public.reserva WHERE codigo=%s"""
+        params = (codigo_reserva, )
+        cursor.execute(query, params)
         reservas = cursor.fetchall()
 
         for reserva in reservas:
@@ -105,7 +109,9 @@ def eliminar_reserva(reserva: TableReservation):
         print("Conexión abierta")
         print(reserva)
         cursor = conn.cursor()
-        cursor.execute(f"""DELETE FROM public.reserva WHERE codigo = {reserva.code};""")
+        query = f"""DELETE FROM public.reserva WHERE codigo = %s;"""
+        params = (reserva.code, )
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha eliminado exitosamente")
         mensaje = "Registro eliminado con éxito"
@@ -128,7 +134,9 @@ def modificar_reserva(reserva: TableReservation):
         print("Conexión abierta")
         print(reserva)
         cursor = conn.cursor()
-        cursor.execute(f"""UPDATE public.reserva SET mesa_codigo = {reserva.table_code}, fecha = '{reserva.date}', num_personas = {reserva.num_people}, nota = '{reserva.note}' WHERE codigo = {reserva.code};""")
+        query = f"""UPDATE public.reserva SET mesa_codigo = %s, fecha = %s, num_personas = %s, nota = %s WHERE codigo = %s;"""
+        params = (reserva.table_code, reserva.date, reserva.num_people, reserva.note, reserva.code)
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha modificado exitosamente")
         mensaje = "Registro modificado con éxito"

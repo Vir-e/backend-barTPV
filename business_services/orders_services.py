@@ -32,12 +32,12 @@ def agregar_al_pedido(pedido: Order, producto_cantidad: dict):
     pedido.add_product(producto_cantidad)
     return pedido
 
-
+'''
 def agregar_productos(pedido: Order, productos: list):
     for producto in productos:
         agregar_al_pedido(pedido, producto)
     return pedido
-
+'''
 
 def eliminar_del_pedido(pedido: Order, producto_cantidad: dict):
     pedido.delete_product(producto_cantidad)

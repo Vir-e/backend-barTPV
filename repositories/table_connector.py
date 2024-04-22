@@ -87,7 +87,9 @@ def buscar_mesa(codigo_mesa: int):
         cursor = conn.cursor()
 
         print("Registros leidos:")
-        cursor.execute(f"""SELECT * FROM public.mesa WHERE codigo={codigo_mesa}""")
+        query = f"""SELECT * FROM public.mesa WHERE codigo=%s"""
+        params = (codigo_mesa, )
+        cursor.execute(query, params)
         mesas = cursor.fetchall()
 
         for mesa in mesas:
@@ -118,7 +120,9 @@ def insertar_mesa(mesa: Table):
         print("Conexión abierta")
         print(mesa)
         cursor = conn.cursor()
-        cursor.execute(f"""INSERT INTO public.mesa (nombre, estado) VALUES('{mesa.name}', '{mesa.state}');""")
+        query = f"""INSERT INTO public.mesa (nombre, estado) VALUES(%s, %s);"""
+        params = (mesa.name, mesa.state)
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha insertado exitosamente")
         mensaje = "Registro insertado con éxito"
@@ -141,7 +145,9 @@ def modificar_estado_mesa(mesa: Table):
         print("Conexión abierta")
         print(mesa)
         cursor = conn.cursor()
-        cursor.execute(f"""UPDATE public.mesa SET estado = '{mesa.state}' WHERE codigo = {mesa.code};""")
+        query = f"""UPDATE public.mesa SET estado = %s WHERE codigo = %s;"""
+        params = (mesa.state, mesa.code)
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha modificado exitosamente")
         mensaje = "Registro modificado con éxito"
@@ -177,7 +183,9 @@ def eliminar_mesa(mesa: Table):
         print("Conexión abierta")
         print(mesa)
         cursor = conn.cursor()
-        cursor.execute(f"""DELETE FROM public.mesa WHERE codigo = {mesa.code};""")
+        query = f"""DELETE FROM public.mesa WHERE codigo = %s;"""
+        params = (mesa.code, )
+        cursor.execute(query, params)
         conn.commit()
         print("El registro se ha eliminado exitosamente")
         mensaje = "Registro eliminado con éxito"

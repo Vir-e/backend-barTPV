@@ -1,16 +1,17 @@
 from pydantic import BaseModel
 
 
+# Se transforma a obj BaseModel para que pueda ser mandado en la respuesta
 class OrderDTO(BaseModel):
     code: int
     code_table: int
     products: list[dict]
 
-
+'''
 class AddOrderDTO(BaseModel):
     code: int
     products: list[dict]
-
+'''
 
 # CLASE PEDIDO CON LAS FUNCIONALIDADES DE AGREGAR Y ELIMINAR PRODUCTOS
 class Order:

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Lista de Productos</title>
+</head>
+<body>
+
+<h1>Productos</h1>
+<ul id="lista-productos"></ul>
+
+<script>
+// Suponiendo que tienes un archivo JSON llamado "productos.json" con una estructura como esta:
+// [
+//   {"nombre": "Producto 1", "precio": 99.99},
+//   {"nombre": "Producto 2", "precio": 149.99}
+// ]
+
+// Función para cargar y mostrar los productos
+function cargarProductos() {
+  fetch('productos.json')
+    .then(function(respuesta) {
+      return respuesta.json();
+    })
+    .then(function(productos) {
+      let lista = document.getElementById('lista-productos');
+      productos.forEach(function(producto) {
+        let item = document.createElement('li');
+        item.innerHTML = `<strong>${producto.nombre}</strong> - $${producto.precio}`;
+        lista.appendChild(item);
+      });
+    })
+    .catch(function(error) {
+      console.error('Error al cargar los productos:', error);
+    });
+}
+
+// Llamar a la función al cargar la página
+window.onload = cargarProductos;
+</script>
+
+</body>
+</html>
