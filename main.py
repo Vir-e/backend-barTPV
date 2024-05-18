@@ -1,17 +1,15 @@
 from fastapi import FastAPI, Form, HTTPException, Body
-from fastapi.responses import HTMLResponse, FileResponse
+#from fastapi.responses import HTMLResponse, FileResponse
 from typing import Annotated
 from globals import listado_pedidos_actuales
 from fastapi.params import Body
-#from models.invoiceDAO import Invoice
 from models.tableDAO import Table
 from models.productDAO import Product
 from models.table_reservationDAO import TableReservation
-#from models.orderDTO import Order, OrderDTO, AddOrderDTO
 from fastapi.staticfiles import StaticFiles
-#from business_services import bar_services
 from business_services.orders_services import iniciar_pedido, agregar_al_pedido, eliminar_del_pedido, generar_factura
 from repositories import product_connector, tablereservation_connector, table_connector, invoice_connector
+
 # para evitar problema cors por origen
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -23,7 +21,9 @@ app.mount("/static_BORRAR", StaticFiles(directory="static_BORRAR"), name="static
 # Origenes permitidos para hacer peticiones
 origins = [
     "http://localhost:63342",
+    "http://localhost:9000",
     "http://localhost:8080",
+    "http://127.0.0.1:9000",
 ]
 # config de las cors
 app.add_middleware(
@@ -125,7 +125,7 @@ async def get_reserva(reserva_id: int, q: str | None = None):
 
 @app.get("/bar/api/v1/mesas")
 async def get_mesas():
-    mesas = table_connector.mostrar_todas_mesas()
+    mesas = table_connector.mostrar_mesas_reserva()
     return mesas
 
 
@@ -160,6 +160,16 @@ async def get_pedidos():
         pedido = order.to_dict()
         listado_validados.append(pedido)
     return listado_validados
+
+
+@app.get("/bar/api/v1/pedido/{pedido_id}")
+async def get_pedidos(pedido_id: int):
+    pedido_seleccionado = []
+    for order in listado_pedidos_actuales:
+        if order.code == pedido_id:
+            pedido = order.to_dict()
+            pedido_seleccionado.append(pedido)
+    return pedido_seleccionado
 
 
 @app.get("/bar/api/v1/facturas")
@@ -229,6 +239,7 @@ async def crear_factura(cod_pedido: Annotated[int, Form()]):
         if pedido.code == cod_pedido:
             factura = generar_factura(pedido)
             print(factura)
+            # TODO Borrar pedido de la var lista global de pedidos
             return factura
     return
 
@@ -243,6 +254,16 @@ async def modificar_producto(cod_producto: int, product: Product = Body(...)):
     return mensaje
 
 
+# crear func updateMesa en db, llamarla y almacenar en mensaje lo que devuelve
+@app.put("/bar/api/v1/actualizarmesa/{cod_mesa}", response_model=Table | str)
+async def modificar_mesa(cod_mesa: int, table: Table = Body(...)):
+    mesa = table_connector.buscar_mesa(cod_mesa)
+    if mesa is None:
+        raise HTTPException(status_code=404, detail="Mesa no encontrada")
+    mensaje = table_connector.modificar_mesa(table)
+    return mensaje
+
+
 @app.put("/bar/api/v1/actualizarreserva/{cod_reserva}", response_model=TableReservation | str)
 async def modificar_reserva(cod_reserva: int, reserva_modificada: TableReservation = Body(...)):
     reserva = tablereservation_connector.buscar_reserva(cod_reserva)
@@ -254,6 +275,10 @@ async def modificar_reserva(cod_reserva: int, reserva_modificada: TableReservati
 
 @app.put("/bar/api/v1/add_productos_pedido/{cod_pedido}")
 async def agregar_productos_al_pedido(cod_pedido: int, cod_producto: Annotated[int, Form()], cantidad: Annotated[int, Form()]):
+    print("cod_pedido: ", cod_pedido)
+    print("cod_producto: ", cod_producto)
+    print("cantidad: ", cantidad)
+
     for order in listado_pedidos_actuales:
         if order.code == cod_pedido:
             order_obj = agregar_al_pedido(order, {cod_producto: cantidad})

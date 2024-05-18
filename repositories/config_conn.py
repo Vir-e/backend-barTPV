@@ -21,12 +21,14 @@ def load_credentials_once(func):
 
 
 class Connection:
+    with open("./config_files/db_config.yaml") as file:
+        credentials = yaml.safe_load(file)
 
-    __DATABASE = "db_gestionempresa"
-    __USERNAME = "postgres"
-    __PASSWORD = "root"
-    __DB_PORT = "5432"
-    __HOST = "127.0.0.1"
+    __DATABASE = credentials["database"]["database_name"]
+    __USERNAME = credentials["database"]["username"]
+    __PASSWORD = credentials["database"]["password"]
+    __DB_PORT = credentials["database"]["port"]
+    __HOST = credentials["database"]["host"]
     __MIN_CON = 1
     __MAX_CON = 5
     __pool = None

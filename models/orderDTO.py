@@ -7,11 +7,6 @@ class OrderDTO(BaseModel):
     code_table: int
     products: list[dict]
 
-'''
-class AddOrderDTO(BaseModel):
-    code: int
-    products: list[dict]
-'''
 
 # CLASE PEDIDO CON LAS FUNCIONALIDADES DE AGREGAR Y ELIMINAR PRODUCTOS
 class Order:
