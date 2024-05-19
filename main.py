@@ -239,7 +239,8 @@ async def crear_factura(cod_pedido: Annotated[int, Form()]):
         if pedido.code == cod_pedido:
             factura = generar_factura(pedido)
             print(factura)
-            # TODO Borrar pedido de la var lista global de pedidos
+            # Borrar pedido de la var lista global de pedidos
+            listado_pedidos_actuales.remove(pedido)
             return factura
     return
 
