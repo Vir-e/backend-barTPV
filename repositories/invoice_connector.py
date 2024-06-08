@@ -4,22 +4,19 @@ from models.invoiceDAO import Invoice
 from repositories import config_conn
 
 
+# Lista todas las facturas de la db
 def mostrar_todas_facturas():
 
     conn = None
     facturas_objetos = []
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-
         cursor = conn.cursor()
 
-        print("Registros leidos:")
         cursor.execute("""SELECT * FROM public.factura""")
         facturas = cursor.fetchall()
 
         for factura in facturas:
-            print(factura)
             factura_obj = Invoice(
                 code=factura[0],
                 code_table=factura[1],
@@ -38,28 +35,25 @@ def mostrar_todas_facturas():
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return facturas_objetos
 
 
+# Devuelve factura de la db por su código
 def buscar_factura(codigo_fac: int):
     conn = None
     facturas_objetos = []
     factura_obj = None
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
 
         cursor = conn.cursor()
 
-        print("Registros leidos:")
         query = f"""SELECT * FROM public.factura WHERE codigo=%s"""
         params = (codigo_fac, )
         cursor.execute(query, params)
         facturas = cursor.fetchall()
 
         for factura in facturas:
-            print(factura)
             factura_obj = Invoice(
                 code=factura[0],
                 code_table=factura[1],
@@ -78,25 +72,21 @@ def buscar_factura(codigo_fac: int):
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return factura_obj
 
 
+# Devuelve el código de la última factura
 def buscar_ultima_factura():
     conn = None
     n_ult_factura = 0
     try:
         conn = config_conn.Connection.getConnection()
-        #print("Conexión abierta")
-
         cursor = conn.cursor()
 
-        #print("Registros leidos:")
         cursor.execute(f"""SELECT * FROM public.factura WHERE codigo = (SELECT MAX(codigo) FROM public.factura);""")
         facturas = cursor.fetchall()
 
         for factura in facturas:
-            #print(factura)
             factura_obj = Invoice(
                 code=factura[0],
                 code_table=factura[1],
@@ -114,24 +104,21 @@ def buscar_ultima_factura():
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        #print("Conexión cerrada")
         return n_ult_factura
 
 
+# Inserta una factura en la db
 def insertar_factura(factura: Invoice):
     conn = None
     mensaje = ""
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-        print(factura)
         cursor = conn.cursor()
         query = f"""INSERT INTO public.factura (codigo, mesa_cod, concepto, importe_bruto, iva_aplicado, importe_neto, fecha) VALUES(%s, %s, %s, %s, %s, %s, %s);"""
         params = (factura.code, factura.code_table, (json.dumps(factura.concept)), factura.total_gross_amount, factura.iva_applied, factura.total_invoice, factura.date)
 
         cursor.execute(query, params)
         conn.commit()
-        print("El registro se ha insertado exitosamente")
         mensaje = "Registro insertado con éxito"
 
     except Error as e:
@@ -140,30 +127,25 @@ def insertar_factura(factura: Invoice):
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mensaje
 
 
+# Eliminar factura de la db
 def eliminar_factura(factura: Invoice):
     conn = None
     mensaje = ""
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-        print(factura)
         cursor = conn.cursor()
         query = f"""DELETE FROM public.factura WHERE codigo = %s;"""
         params = (factura.code, )
         cursor.execute(query, params)
         conn.commit()
-        print("El registro se ha eliminado exitosamente")
         mensaje = "Registro eliminado con éxito"
 
     except Error as e:
-        print(e)
         mensaje = "Se ha producido un error al eliminar el registro"
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mensaje

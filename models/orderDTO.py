@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-# Se transforma a obj BaseModel para que pueda ser mandado en la respuesta
+# obj BaseModel para ser mandado en la respuesta de peticiones
 class OrderDTO(BaseModel):
     code: int
     code_table: int
@@ -28,7 +28,7 @@ class Order:
     def delete_product(self, product: dict):
         self.products.remove(product)
 
-
+    # Convertir a obj BaseModel
     def to_OrderDTO(self):
         return OrderDTO(
             code=self.code,

@@ -10,13 +10,13 @@ from fastapi.staticfiles import StaticFiles
 from business_services.orders_services import iniciar_pedido, agregar_al_pedido, eliminar_del_pedido, generar_factura
 from repositories import product_connector, tablereservation_connector, table_connector, invoice_connector
 
-# para evitar problema cors por origen
+# Para evitar problema cors por origen
 from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 
-app.mount("/static_BORRAR", StaticFiles(directory="static_BORRAR"), name="static_BORRAR")
+#app.mount("/static_BORRAR", StaticFiles(directory="static_BORRAR"), name="static_BORRAR")
 
 # Origenes permitidos para hacer peticiones
 origins = [
@@ -25,7 +25,7 @@ origins = [
     "http://localhost:8080",
     "http://127.0.0.1:9000",
 ]
-# config de las cors
+# configuración de las cors
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -110,49 +110,56 @@ async def delivery_form():
 ########## api ###########
 
 
-# GET
+# GET RESERVAS
 @app.get("/bar/api/v1/reservas")
 async def get_reservas():
     reservas = tablereservation_connector.mostrar_todas_reservas()
     return reservas
 
 
+# GET RESERVA
 @app.get("/bar/api/v1/reserva/{reserva_id}")
 async def get_reserva(reserva_id: int, q: str | None = None):
     reserva = tablereservation_connector.buscar_reserva(reserva_id)
     return reserva
 
 
+# GET MESAS
 @app.get("/bar/api/v1/mesas")
 async def get_mesas():
     mesas = table_connector.mostrar_mesas_reserva()
     return mesas
 
 
+# GET MESA
 @app.get("/bar/api/v1/mesa/{table_id}")
 async def get_mesa(table_id: int, q: str | None = None):
     mesa = table_connector.buscar_mesa(table_id)
     return mesa
 
 
+# GET PRODUCTOS
 @app.get("/bar/api/v1/productos")
 async def get_productos():
     productos = product_connector.mostrar_todos_productos()
     return productos
 
 
+# GET  STOCK PRODUCTO (NO USADO)
 @app.get("/bar/api/v1/stock-productos")
 async def get_stock_productos():
     productos_stock = product_connector.mostrar_stock()
     return productos_stock
 
 
+# GET PRODUCTO
 @app.get("/bar/api/v1/producto/{product_id}")
 async def get_producto(product_id: int, q: str | None = None):
     producto = product_connector.buscar_un_producto(product_id)
     return producto
 
 
+# GET PEDIDOS
 @app.get("/bar/api/v1/pedidos")
 async def get_pedidos():
     listado_validados = []
@@ -162,6 +169,7 @@ async def get_pedidos():
     return listado_validados
 
 
+# GET PEDIDO
 @app.get("/bar/api/v1/pedido/{pedido_id}")
 async def get_pedidos(pedido_id: int):
     pedido_seleccionado = []
@@ -172,12 +180,14 @@ async def get_pedidos(pedido_id: int):
     return pedido_seleccionado
 
 
+# GET FACTURAS
 @app.get("/bar/api/v1/facturas")
 async def get_facturas():
     facturas = invoice_connector.mostrar_todas_facturas()
     return facturas
 
 
+# GET FACTURA
 @app.get("/bar/api/v1/factura/{factura_id}")
 async def get_factura(factura_id: int, q: str | None = None):
     factura = invoice_connector.buscar_factura(factura_id)
@@ -185,6 +195,8 @@ async def get_factura(factura_id: int, q: str | None = None):
 
 
 # POST
+
+# POST MESA
 @app.post("/bar/api/v1/nuevamesa")
 async def crear_mesa(nombre: Annotated[str, Form()]):
     mesa = Table(
@@ -192,10 +204,10 @@ async def crear_mesa(nombre: Annotated[str, Form()]):
         name=nombre,
     )
     table_connector.insertar_mesa(mesa)
-    print(mesa)
     return mesa
 
 
+# POST PRODUCTO
 @app.post("/bar/api/v1/nuevoproducto")
 async def crear_producto(nombre: Annotated[str, Form()], precio: Annotated[float, Form()], iva: Annotated[int, Form()], stock: Annotated[int, Form()]):
     producto = Product(
@@ -206,10 +218,10 @@ async def crear_producto(nombre: Annotated[str, Form()], precio: Annotated[float
         stock=stock
     )
     product_connector.insertar_producto(producto)
-    print(producto)
     return producto
 
 
+# POST RESERVA
 @app.post("/bar/api/v1/nuevareserva")
 async def crear_reserva(mesa_cod: Annotated[int, Form()], fecha: Annotated[str, Form()], num_comensales: Annotated[int, Form()], nota: Annotated[str, Form()]):
     reserva = TableReservation(
@@ -220,25 +232,23 @@ async def crear_reserva(mesa_cod: Annotated[int, Form()], fecha: Annotated[str, 
         note=nota
     )
     tablereservation_connector.insertar_reserva(reserva)
-    print(reserva)
     return reserva
 
 
+# POST PEDIDO
 @app.post("/bar/api/v1/nuevopedido")
 async def crear_pedido(mesa_cod: Annotated[int, Form()]):
     pedido = iniciar_pedido(mesa_cod)
-    print(pedido)
     listado_pedidos_actuales.append(pedido)
-    print("Pedidos actuales: ", listado_pedidos_actuales)
     return pedido.to_dict()
 
 
+# POST FACTURA
 @app.post("/bar/api/v1/nuevafactura")
 async def crear_factura(cod_pedido: Annotated[int, Form()]):
     for pedido in listado_pedidos_actuales:
         if pedido.code == cod_pedido:
             factura = generar_factura(pedido)
-            print(factura)
             # Borrar pedido de la var lista global de pedidos
             listado_pedidos_actuales.remove(pedido)
             return factura
@@ -246,6 +256,8 @@ async def crear_factura(cod_pedido: Annotated[int, Form()]):
 
 
 # PUT
+
+# PUT PRODUCTO
 @app.put("/bar/api/v1/actualizarproducto/{cod_producto}", response_model=Product | str)
 async def modificar_producto(cod_producto: int, product: Product = Body(...)):
     producto = product_connector.buscar_un_producto(cod_producto)
@@ -255,7 +267,7 @@ async def modificar_producto(cod_producto: int, product: Product = Body(...)):
     return mensaje
 
 
-# crear func updateMesa en db, llamarla y almacenar en mensaje lo que devuelve
+# PUT MESA
 @app.put("/bar/api/v1/actualizarmesa/{cod_mesa}", response_model=Table | str)
 async def modificar_mesa(cod_mesa: int, table: Table = Body(...)):
     mesa = table_connector.buscar_mesa(cod_mesa)
@@ -265,6 +277,7 @@ async def modificar_mesa(cod_mesa: int, table: Table = Body(...)):
     return mensaje
 
 
+# PUT RESERVA
 @app.put("/bar/api/v1/actualizarreserva/{cod_reserva}", response_model=TableReservation | str)
 async def modificar_reserva(cod_reserva: int, reserva_modificada: TableReservation = Body(...)):
     reserva = tablereservation_connector.buscar_reserva(cod_reserva)
@@ -274,18 +287,16 @@ async def modificar_reserva(cod_reserva: int, reserva_modificada: TableReservati
     return mensaje
 
 
+# PUT PEDIDO (AÑADIR PRODUCTOS)
 @app.put("/bar/api/v1/add_productos_pedido/{cod_pedido}")
 async def agregar_productos_al_pedido(cod_pedido: int, cod_producto: Annotated[int, Form()], cantidad: Annotated[int, Form()]):
-    print("cod_pedido: ", cod_pedido)
-    print("cod_producto: ", cod_producto)
-    print("cantidad: ", cantidad)
-
     for order in listado_pedidos_actuales:
         if order.code == cod_pedido:
             order_obj = agregar_al_pedido(order, {cod_producto: cantidad})
             return order_obj.to_OrderDTO()
 
 
+# PUT PEDIDO (ELIMINAR PRODUCTOS)
 @app.put("/bar/api/v1/delete_productos_pedido/{cod_pedido}")
 async def borrar_productos_del_pedido(cod_pedido: int, cod_producto: Annotated[int, Form()], cantidad: Annotated[int, Form()]):
     for order in listado_pedidos_actuales:
@@ -293,8 +304,10 @@ async def borrar_productos_del_pedido(cod_pedido: int, cod_producto: Annotated[i
             order_obj = eliminar_del_pedido(order, {cod_producto: cantidad})
             return order_obj.to_OrderDTO()
 
+# DELETE
 
-#DELETE
+
+# DELETE PRODUCTO
 @app.delete("/bar/api/v1/delete_producto")
 async def borrar_producto(cod_producto: int):
     producto = product_connector.buscar_un_producto(cod_producto)
@@ -302,6 +315,7 @@ async def borrar_producto(cod_producto: int):
     return mensaje
 
 
+# DELETE MESA
 @app.delete("/bar/api/v1/delete_mesa")
 async def borrar_mesa(cod_mesa: int):
     mesa = table_connector.buscar_mesa(cod_mesa)
@@ -309,6 +323,7 @@ async def borrar_mesa(cod_mesa: int):
     return mensaje
 
 
+# DELETE RESERVA
 @app.delete("/bar/api/v1/delete_reserva")
 async def borrar_reserva(cod_reserva: int):
     reserva = tablereservation_connector.buscar_reserva(cod_reserva)
@@ -316,6 +331,7 @@ async def borrar_reserva(cod_reserva: int):
     return mensaje
 
 
+# DELETE PEDIDO
 @app.delete("/bar/api/v1/delete_pedido")
 async def borrar_pedido(cod_pedido: int):
     mensaje = "No se ha encontrado el pedido"
@@ -326,6 +342,7 @@ async def borrar_pedido(cod_pedido: int):
     return mensaje
 
 
+# DELETE FACTURA
 @app.delete("/bar/api/v1/delete_factura")
 async def borrar_factura(cod_factura: int):
     factura = invoice_connector.buscar_factura(cod_factura)
@@ -333,9 +350,7 @@ async def borrar_factura(cod_factura: int):
     return mensaje
 
 
-
 if __name__ == '__main__':
     print('Hello, I am PyCharm')
-    #print(bar_services.mostrar_reservas())
 
 

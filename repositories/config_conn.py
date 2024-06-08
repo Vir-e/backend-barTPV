@@ -50,7 +50,6 @@ class Connection:
                     port=cls.__DB_PORT,
                     database=cls.__DATABASE
                 )
-                print("Creación pool exitosa:", cls.__pool)
                 return cls.__pool
             except Exception as e:
                 print("Error al crear el pool...", e)
@@ -63,7 +62,6 @@ class Connection:
     @load_credentials_once
     def getConnection(cls):
         conn = cls.getPool().getconn()
-        print("Conexión obtenida del pool: ", conn)
         return conn
 
     # LIBERAR LA CONEXIÓN
@@ -77,4 +75,3 @@ class Connection:
     @load_credentials_once
     def closeConnections(cls):
         cls.getPool().closeall()
-        print("Se han cerrado todas las conexiones del pool: ", cls.__pool)

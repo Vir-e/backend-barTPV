@@ -1,63 +1,19 @@
 from psycopg2 import Error
 from models.tableDAO import Table
 from repositories import config_conn
-'''
-host = "localhost"
-dbname = "db_gestionempresa"
-user = "postgres"
-password = "root"
 
 
-conn = None
-cursor = None
-try:
-    conn = psycopg2.connect(host=host, dbname=dbname, user=user, password=password, port="5432")
-    print("Conexión abierta")
-
-    cursor = conn.cursor()
-    result = cursor.execute("""INSERT INTO public.cliente VALUES(3, 'Jose Rueda Lorenzo', 'C/ Panaderas 14', '6948630', 'joserueda@gmail.com', '49628850P')""")
-    print(result)
-    conn.commit()
-
-    print("Registro insertado con éxito")
-
-    result = cursor.execute("""SELECT * FROM cliente""")
-    print(result)
-
-    print("Registro leido")
-
-except Exception as ex:
-    print(ex)
-
-finally:
-    cursor.close()
-    conn.close()
-    print("Conexión cerrada")
-
-
-#FUNCIONA CONECTANDO CON PSYCOP2 SIN POOL, COGIENDO CREDENCIALES DEL YAML
-def cargar_credenciales():
-    with open("/config_files/db_config.yaml", 'r') as archivo:
-        credenciales = yaml.safe_load(archivo)
-    return credenciales
-'''
-
-
+# Lista todas las mesas de la db
 def mostrar_todas_mesas():
     conn = None
     mesas_objetos = []
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-
         cursor = conn.cursor()
-
-        print("Registros leidos:")
         cursor.execute("""SELECT * FROM public.mesa""")
         mesas = cursor.fetchall()
 
         for mesa in mesas:
-            print(mesa)
             mesa_obj = Table(
                 code=mesa[2],
                 name=mesa[0],
@@ -72,20 +28,16 @@ def mostrar_todas_mesas():
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mesas_objetos
 
 
+# Consulta las mesas y las reservas asociadas (JOIN)
 def mostrar_mesas_reserva():
     conn = None
     mesas_objetos = []
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-
         cursor = conn.cursor()
-
-        print("Registros leidos:")
         cursor.execute("""SELECT m.*, COALESCE(r.fecha, NULL) AS fecha
                         FROM public.mesa m
                         LEFT JOIN (
@@ -97,7 +49,6 @@ def mostrar_mesas_reserva():
         mesas = cursor.fetchall()
 
         for mesa in mesas:
-            print(mesa)
             if mesa[3]:
                 mesa_obj = Table(
                     code=mesa[2],
@@ -119,31 +70,23 @@ def mostrar_mesas_reserva():
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mesas_objetos
 
 
-
-
-
+# Busca una mesa en la db por el código
 def buscar_mesa(codigo_mesa: int):
     conn = None
     mesas_objetos = []
     mesa_obj = None
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-
         cursor = conn.cursor()
-
-        print("Registros leidos:")
         query = f"""SELECT * FROM public.mesa WHERE codigo=%s"""
         params = (codigo_mesa, )
         cursor.execute(query, params)
         mesas = cursor.fetchall()
 
         for mesa in mesas:
-            print(mesa)
             mesa_obj = Table(
                 code=mesa[2],
                 name=mesa[0],
@@ -158,23 +101,20 @@ def buscar_mesa(codigo_mesa: int):
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mesa_obj
 
 
+# Inserta mesa en la db
 def insertar_mesa(mesa: Table):
     conn = None
     mensaje = ""
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-        print(mesa)
         cursor = conn.cursor()
         query = f"""INSERT INTO public.mesa (nombre, estado) VALUES(%s, %s);"""
         params = (mesa.name, mesa.state)
         cursor.execute(query, params)
         conn.commit()
-        print("El registro se ha insertado exitosamente")
         mensaje = "Registro insertado con éxito"
 
     except Error as e:
@@ -183,23 +123,20 @@ def insertar_mesa(mesa: Table):
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mensaje
 
 
+# Modifica los campos nombre y estado de una mesa en la db
 def modificar_mesa(mesa: Table):
     conn = None
     mensaje = ""
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-        print(mesa)
         cursor = conn.cursor()
         query = f"""UPDATE public.mesa SET nombre = %s, estado = %s WHERE codigo = %s;"""
         params = (mesa.name, mesa.state, mesa.code)
         cursor.execute(query, params)
         conn.commit()
-        print("El registro se ha modificado exitosamente")
         mensaje = "Registro modificado con éxito"
 
     except Error as e:
@@ -208,36 +145,19 @@ def modificar_mesa(mesa: Table):
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mensaje
 
-
-'''
-def ejemploBORRAR():
-    conn = config_conn.Connection.getConnection()
-    print("Ha recibido la conexion")
-    config_conn.Connection.releaseConnection(conn)
-    print("Ha liberado la conexión")
-    config_conn.Connection.closeConnections()
-    print("Se ha cerrado el pool")
-'''
-
-#buscar_mesa(12)
-
-
+# Elimina una mesa de la db
 def eliminar_mesa(mesa: Table):
     conn = None
     mensaje = ""
     try:
         conn = config_conn.Connection.getConnection()
-        print("Conexión abierta")
-        print(mesa)
         cursor = conn.cursor()
         query = f"""DELETE FROM public.mesa WHERE codigo = %s;"""
         params = (mesa.code, )
         cursor.execute(query, params)
         conn.commit()
-        print("El registro se ha eliminado exitosamente")
         mensaje = "Registro eliminado con éxito"
 
     except Error as e:
@@ -246,7 +166,6 @@ def eliminar_mesa(mesa: Table):
 
     finally:
         config_conn.Connection.releaseConnection(conn)
-        print("Conexión cerrada")
         return mensaje
 
 

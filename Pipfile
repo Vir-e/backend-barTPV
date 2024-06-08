@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fastapi = {extras = ["all"], version = "*"}
-pydantic = "*"
-psycopg2 = "*"
-pyyaml = "*"
-sqlalchemy = "*"
-python-multipart = "*"
-pytest = "*"
+fastapi = {extras = ["all"], version = "0.110.3"}
+pydantic = "2.7.1"
+psycopg2 = "2.9.9"
+pyyaml = "6.0.1"
+sqlalchemy = "2.0.29"
+python-multipart = "0.0.9"
+pytest = "8.2.0"
 
 [dev-packages]
 
